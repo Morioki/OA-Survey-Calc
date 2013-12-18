@@ -11,16 +11,14 @@ import java.util.Map;
 
 
 /*==========================================================================
-* Class: InputParser
+* Class: 
 * Variables: 
-* Description: Takes in the input file in CSV format and parses through it
-* 	It normalizes the data, removing punctuation and cases to potentially
-* 	reduce the amount of false positives or false errors
+* Description: 
 ===========================================================================*/
-public class InputParser {
+public class Analyzer {
 	
 	private HashMap<Integer,Collection<String>> answerMap = new HashMap<Integer,Collection<String>>();
-
+	private HashMap<Integer,HashMap<String,Float>> answerFrequencyMap = new HashMap<Integer,HashMap<String,Float>>();
 	
 /*==========================================================================
 * importFile
@@ -45,7 +43,7 @@ public class InputParser {
 						value = new ArrayList<String>();
 						answerMap.put(i,value);
 					}
-					value.add(lineSplit[i].replaceAll("[^a-zA-Z ]", ""));
+					value.add(lineSplit[i].replaceAll("[^a-zA-Z ]", "").trim());
 				}
 			}
 			br.close();
@@ -89,14 +87,51 @@ public class InputParser {
 	
 	
 	
+	// how to store pair
+	// when you find a word. and its not in the other list add it to list w/ freq 1
+	// else increment frequency
+ 
+	
+	public void analyze(){
+		for(Map.Entry<Integer,Collection<String>> answerEntry : answerMap.entrySet()){
+			HashMap<String,Float> tmpFreqMap = new HashMap<String,Float>();
+			
+			Float answerAmount = (float) answerEntry.getValue().size();
+			
+			
+			// Gets the frequency of each answer in the collection 
+			for(String s : answerEntry.getValue()){
+				if(tmpFreqMap.containsKey(s)){
+					tmpFreqMap.put(s, tmpFreqMap.get(s)+1);
+				}
+				else {
+					System.out.println("Key "+s+" not found");
+					tmpFreqMap.put(s, (float) 1.0);
+				}
+			}
+			
+			for(Map.Entry<String,Float> percentCalcEntry : tmpFreqMap.entrySet()){
+				percentCalcEntry.setValue(percentCalcEntry.getValue()/answerAmount); //turns the frequency into a decimal percentage
+			}
+			
+//			for(Map.Entry<String,Float> tmp : tmpFreqMap.entrySet()){
+//				System.out.println("Word: "+tmp.getKey()+ " Frequency: "+tmp.getValue());
+//			}
+			
+			answerFrequencyMap.put(answerEntry.getKey(), tmpFreqMap);
+		}
+	}
+	
+	
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		InputParser test = new InputParser();
+		Analyzer test = new Analyzer();
 		//System.out.println("Created Test Parser");
 		test.importFile("e:\\Users\\Garrett\\Desktop\\test.csv");
 		//System.out.println("Finished Import");
-		test.outputMap();
+		//test.outputMap();
+		test.analyze();
 	}
 
 }
