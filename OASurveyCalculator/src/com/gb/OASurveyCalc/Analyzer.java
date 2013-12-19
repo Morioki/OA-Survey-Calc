@@ -43,7 +43,7 @@ public class Analyzer {
 						value = new ArrayList<String>();
 						answerMap.put(i,value);
 					}
-					value.add(lineSplit[i].replaceAll("[^a-zA-Z ]", "").trim());
+					value.add(lineSplit[i].replaceAll("[^a-zA-Z0-9 ]", "").trim());
 				}
 			}
 			br.close();
@@ -114,9 +114,9 @@ public class Analyzer {
 				percentCalcEntry.setValue(percentCalcEntry.getValue()/answerAmount); //turns the frequency into a decimal percentage
 			}
 			
-//			for(Map.Entry<String,Float> tmp : tmpFreqMap.entrySet()){
-//				System.out.println("Word: "+tmp.getKey()+ " Frequency: "+tmp.getValue());
-//			}
+			for(Map.Entry<String,Float> tmp : tmpFreqMap.entrySet()){
+				System.out.println("Word: "+tmp.getKey()+ " Frequency: "+tmp.getValue());
+			}
 			
 			answerFrequencyMap.put(answerEntry.getKey(), tmpFreqMap);
 		}
