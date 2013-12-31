@@ -11,8 +11,8 @@ public class DatabaseConnector {
 	private String serverName /*= "192.168.0.27"*/;
 	private String serverPort /*= "3306"*/;
 	private String dbName /*= "dvd_collection"*/;
-	private String username /*= "gbp"*/;
-	private String password /*= "garrett902"*/;
+	private String username;
+	private String password;
 	
 	private String uri;
 	
@@ -21,8 +21,8 @@ public class DatabaseConnector {
 		serverName = "192.168.0.27";
 		serverPort = "3306";
 		dbName = "Highlander_Survey";
-		username = "root";
-		password = "garrett902";
+		username = "garrett";
+		password = "tacos^g2";
 		uri = "jdbc:mysql://"+serverName+":"+serverPort+"/"+dbName;
 	}
 	
@@ -41,10 +41,7 @@ public class DatabaseConnector {
 			Class.forName(driverName);
 			connection = DriverManager.getConnection(uri, username, password);
 			
-		} catch(SQLException e){
-			System.out.println(e.getMessage());
-			return false;
-		} catch (ClassNotFoundException e) {
+		} catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
 			System.out.println("ClassNotFoundException: "+e.getMessage());
 			return false;
@@ -55,7 +52,8 @@ public class DatabaseConnector {
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		
+		DatabaseConnector dbCon = new DatabaseConnector();
+		System.out.println(dbCon.checkConnection());
 	}
 
 }
