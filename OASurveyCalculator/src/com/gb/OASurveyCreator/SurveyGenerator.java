@@ -1,10 +1,8 @@
 package com.gb.OASurveyCreator;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Timestamp;
@@ -34,12 +32,11 @@ public class SurveyGenerator {
 		}
 	}
 	
-	public void buildTestSurvey(Integer questionAmount , Integer numAnswers){
-		String writeFileName = "e:\\Users\\Garrett\\Desktop\\test.csv";
+	public void buildTestSurvey(Integer questionAmount , Integer numAnswers, String writeFileName){
 		File output = new File(writeFileName);
 		Date timestamp = new Date();
 		try {
-			PrintWriter writer = new PrintWriter(output);
+			PrintWriter writer = new PrintWriter(output/*, "UTF-8"*/);
 			
 			//BUILD THE FIRST LINE OF THE STRING
 			StringBuilder outputString = new StringBuilder("Timestamp");
@@ -76,7 +73,7 @@ public class SurveyGenerator {
 		SurveyGenerator test = new SurveyGenerator();
 		test.buildDictionary("e:\\Users\\Garrett\\Desktop\\surveyDictionary.txt");
 		//test.printDictionary();
-		test.buildTestSurvey(10, 1000);
+		test.buildTestSurvey(10, 1000,"e:\\Users\\Garrett\\Desktop\\test.csv");
 	}
 
 }

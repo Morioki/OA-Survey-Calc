@@ -2,12 +2,19 @@ package com.gb.OASurveyCalc;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+
+import au.com.bytecode.opencsv.CSVReader;
+
 
 
 /*==========================================================================
@@ -17,8 +24,11 @@ import java.util.Map;
 ===========================================================================*/
 public class Analyzer {
 	
-	private HashMap<Integer,Collection<String>> answerMap = new HashMap<Integer,Collection<String>>();
-	private HashMap<Integer,HashMap<String,Float>> answerFrequencyMap = new HashMap<Integer,HashMap<String,Float>>();
+	private LinkedHashMap<Integer,Collection<String>> answerMap = new LinkedHashMap<Integer,Collection<String>>();
+	private LinkedHashMap<Integer,HashMap<String,Float>> answerFrequencyMap = new LinkedHashMap<Integer,HashMap<String,Float>>();
+	
+
+	
 	
 /*==========================================================================
 * importFile
@@ -28,30 +38,30 @@ public class Analyzer {
 * Description: Takes in a csv file of answers to survey questions and parses it into a Map for further work in another class
 ===========================================================================*/
 	public void importFile(String filename){
-		File input = new File(filename);
-		String line;
-		String csvDelimiter = ",";
-		
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(input));
-			br.readLine(); //Throw Away the first line
-			while((line=br.readLine()) != null){
-				String[] lineSplit = line.toLowerCase().split(csvDelimiter);				
-				for(int i = 1; i < lineSplit.length; i++){ //i = 1 because first index is the time stamp and we dont want that
-					Collection<String> value = answerMap.get(i);
-					if(value == null){
-						value = new ArrayList<String>();
-						answerMap.put(i,value);
+			CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(new FileInputStream(filename),"UTF-16")),'\t','"',1);
+			String[] line;
+			Integer offset = 10;
+			while((line = reader.readNext()) != null){
+				for(int i = offset; i < line.length; i++){
+					if(!line[4].equals("INCOMPLETE")){
+						System.out.println(line[i]);
+						Collection<String> value = answerMap.get(i-offset+1);
+						if(value == null){
+							value = new ArrayList<String>();
+							answerMap.put(i-offset+1, value);
+						}
+						value.add(line[i].trim());  //CONVERT TO LOWER CASE IN ANALYSIS
 					}
-					value.add(lineSplit[i].replaceAll("[^a-zA-Z0-9 ]", "").trim());
 				}
+				//System.out.println(" ");
 			}
-			br.close();
+			reader.close();
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
+		} 		
 
 	}
 	
@@ -105,7 +115,7 @@ public class Analyzer {
 					tmpFreqMap.put(s, tmpFreqMap.get(s)+1);
 				}
 				else {
-					System.out.println("Key "+s+" not found");
+					//System.out.println("Key "+s+" not found");
 					tmpFreqMap.put(s, (float) 1.0);
 				}
 			}
@@ -114,24 +124,46 @@ public class Analyzer {
 				percentCalcEntry.setValue(percentCalcEntry.getValue()/answerAmount); //turns the frequency into a decimal percentage
 			}
 			
-			for(Map.Entry<String,Float> tmp : tmpFreqMap.entrySet()){
-				System.out.println("Word: "+tmp.getKey()+ " Frequency: "+tmp.getValue());
-			}
+//			for(Map.Entry<String,Float> tmp : tmpFreqMap.entrySet()){
+//				System.out.println("Word: "+tmp.getKey()+ " Frequency: "+tmp.getValue());
+//			}
 			
 			answerFrequencyMap.put(answerEntry.getKey(), tmpFreqMap);
 		}
 	}
 	
 	
+	public void outputAnalysis(String filename){
+		File outputFile = new File(filename);
+		try {
+			PrintWriter writer = new PrintWriter(outputFile/*, "UTF-8"*/);
+			
+			for(Map.Entry<Integer, HashMap<String, Float>> questionEntry : answerFrequencyMap.entrySet()){
+				writer.println("Question "+questionEntry.getKey());
+				//System.out.println("Question "+questionEntry.getKey());
+				
+				for(Map.Entry<String, Float> freqEntry : questionEntry.getValue().entrySet()){
+					writer.println("\t"+"Word: "+freqEntry.getKey()+ "  Frequency: "+(freqEntry.getValue()*100));
+				}
+			}
+			
+			writer.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		Analyzer test = new Analyzer();
 		//System.out.println("Created Test Parser");
-		test.importFile("e:\\Users\\Garrett\\Desktop\\test.csv");
+		test.importFile("e:\\Users\\Garrett\\Desktop\\Reader's_Guide_2013.csv");
 		//System.out.println("Finished Import");
 		//test.outputMap();
-		test.analyze();
+		//test.analyze();
+		//test.outputAnalysis("e:\\Users\\Garrett\\Desktop\\trash.txt");
 	}
 
 }

@@ -8,5 +8,7 @@
 			<attribute name="javadoc_location" value="jar:file:/E:/JavaLibraries/Apache%20Commons/commons-lang3-3.1/commons-lang3-3.1-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="E:/JavaLibraries/CSVParser/opencsv-2.3.jar"/>
+	<classpathentry kind="lib" path="E:/JavaLibraries/DB/mysql-connector-java-5.1.28/mysql-connector-java-5.1.28-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
