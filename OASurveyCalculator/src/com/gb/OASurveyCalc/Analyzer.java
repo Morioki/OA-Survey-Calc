@@ -39,13 +39,62 @@ public class Analyzer {
 ===========================================================================*/
 	public void importFile(String filename){
 		try {
+			DatabaseConnector dbConnection = new DatabaseConnector();
+			dbConnection.createConnection();  // CREATE DATABASE CONNECTION
+			
 			CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(new FileInputStream(filename),"UTF-16")),'\t','"',1);
 			String[] line;
 			Integer offset = 10;
+			Integer lineNum = 0;
 			while((line = reader.readNext()) != null){
+				lineNum=lineNum+1;
+				System.out.println("Reading Line: "+lineNum);
 				for(int i = offset; i < line.length; i++){
-					if(!line[4].equals("INCOMPLETE")){
-						System.out.println(line[i]);
+					if(!line[4].equals("INCOMPLETE") && !line[5].equals("YES")){
+						//System.out.println(line[i]);
+						
+						//THIS BUILDS INFORMATION INTO THE DATABASE--------------------------------------
+						//--CREATES THE TABLE FOR CONTACT INFORMATION ON COMPLETE SURVEYS
+						if(line[line.length-1].contains(",")){
+							String[] contact = line[line.length-1].split(",");
+							String name=null;
+							String contact_email=null;
+							String phone_number=null;
+							switch(contact.length){
+								case 1:
+									name = contact[0].trim();
+									break;
+								case 2:
+									name = contact[0].trim();
+									contact_email = contact[1].trim();
+									break;
+								case 3:
+									name = contact[0].trim();
+									contact_email = contact[1].trim();
+									phone_number = contact[2].trim();
+									break;
+								default:
+									name = contact[0].trim();
+									contact_email = contact[1].trim();
+									phone_number = contact[2].trim();
+									break;
+							}
+							
+							dbConnection.insert("INSERT IGNORE INTO contact_information SET "
+									+ "ucr_email=\""+line[10].trim()
+									+ "\" , name=\""+name
+									+ "\" , contact_email=\""+contact_email
+									+ "\" , phone_number=\""+phone_number+"\"");
+						} else{
+							dbConnection.insert("INSERT IGNORE INTO contact_information SET "
+									+ "ucr_email=\""+line[10].trim()
+									+ "\" , name=\""+line[line.length-1]+"\"");
+						}
+						//--DONE CONTACT INFOMRATION
+						
+						
+						
+						//THIS CREATES IT IN RAM IN THE MAP OBJECTS--------------------------------------
 						Collection<String> value = answerMap.get(i-offset+1);
 						if(value == null){
 							value = new ArrayList<String>();
