@@ -23,7 +23,7 @@ import com.gb.OASurveyCreator.SurveyGenerator;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
-public class CalcGUI extends JFrame {
+public class CalcGUI_OLD extends JFrame {
 
 	/**
 	 * 
@@ -57,7 +57,7 @@ public class CalcGUI extends JFrame {
 			public void run() {
 				try {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-					CalcGUI frame = new CalcGUI();
+					CalcGUI_OLD frame = new CalcGUI_OLD();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -69,7 +69,7 @@ public class CalcGUI extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public CalcGUI() {
+	public CalcGUI_OLD() {
 		setTitle("Open Answer Survey Analyzer");
 		
 		final Filename dictionaryFile = new Filename();

@@ -1,11 +1,29 @@
 package com.gb.OASurveyCalc;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+final class MyComparator implements Comparator<String>{
+
+	@Override
+	public int compare(String arg0, String arg1) {
+			String subARG0 = arg0.substring(7);
+			String subARG1 = arg1.substring(7);
+			try{
+				return Integer.valueOf(subARG0) - Integer.valueOf(subARG1);
+			} catch(NumberFormatException e){
+				return 0;
+			}
+	}
+}
+	
 
 public class DatabaseConnector {
 	
@@ -21,11 +39,11 @@ public class DatabaseConnector {
 	
 	public DatabaseConnector(){
 		driverName = "com.mysql.jdbc.Driver";
-		serverName = "192.168.0.27";
+		serverName = "68.74.152.126";
 		serverPort = "3306";
 		dbName = "Highlander_Survey";
 		username = "garrett";
-		password = "tacos^g2";
+		password = "garrett902";
 		uri = "jdbc:mysql://"+serverName+":"+serverPort+"/"+dbName;
 	}
 	
@@ -89,6 +107,28 @@ public class DatabaseConnector {
 		}
 	}
 	
+	public ArrayList<String> getTableList(){
+		ArrayList<String> tableNames = new ArrayList<String>();
+		try {
+			
+			DatabaseMetaData metadata = connection.getMetaData();
+			ResultSet rs = metadata.getTables(null, null, null, new String[]{"TABLE"});
+			while(rs.next()){
+				if(rs.getString(3).startsWith("answer_")){
+					tableNames.add(rs.getString(3));
+				}
+			}
+			Comparator<String> comparator = new MyComparator();
+			Collections.sort(tableNames,comparator);
+			
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return tableNames;
+	}
+	
 	public void clearTable(String tableName){
 		try {
 			Statement stmt = connection.createStatement();
@@ -114,7 +154,9 @@ public class DatabaseConnector {
 		// TODO Auto-generated method stub
 		DatabaseConnector dbCon = new DatabaseConnector();
 		System.out.println(dbCon.createConnection());
-		dbCon.createAnswerTable("answer_1");
+		
+		dbCon.getTableList();
+		//dbCon.createAnswerTable("answer_1");
 		/*ResultSet r = dbCon.getResult("SELECT * FROM trash_table WHERE 1=2");
 		
 		try {
