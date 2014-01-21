@@ -11,7 +11,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -19,7 +18,7 @@ import java.util.Map;
 import au.com.bytecode.opencsv.CSVReader;
 
 import org.apache.commons.lang3.time.StopWatch;
-
+import org.apache.commons.lang3.StringUtils;
 
 
 /*==========================================================================
@@ -29,7 +28,7 @@ import org.apache.commons.lang3.time.StopWatch;
 ===========================================================================*/
 public class Analyzer {
 	
-	private LinkedHashMap<Integer,Collection<String>> answerMap = new LinkedHashMap<Integer,Collection<String>>();
+	//private LinkedHashMap<Integer,Collection<String>> answerMap = new LinkedHashMap<Integer,Collection<String>>();
 	private LinkedHashMap<Integer,HashMap<String,Float>> answerFrequencyMap = new LinkedHashMap<Integer,HashMap<String,Float>>();
 	
 
@@ -102,6 +101,7 @@ public class Analyzer {
 				
 					for(int i = offset; i < line.length; i++){
 						//System.out.println(line[i]);
+						System.out.println("Answer "+(i-offset+1));
 						if(i == 10 || i == line.length-1) continue;
 							
 						//PROFESSOR SECTION
@@ -118,6 +118,26 @@ public class Analyzer {
 									if(exists.getInt(1)>0){
 										dbConnection.insert("INSERT INTO answer_chass_prof (answer,count) VALUES (\""+line[i].trim()+"\",1) ON DUPLICATE KEY UPDATE count=count+1");
 									}
+									else{
+										ResultSet courier = dbConnection.getResult("SELECT * FROM professor_list WHERE college=\"CHASS\"");
+										Integer minLength=1000;
+										String minWord="";
+										while(courier.next()){
+											String tmpWord = courier.getString("name");
+											if(tmpWord.contains(line[i].trim())){
+												dbConnection.insert("INSERT INTO answer_chass_prof (answer,count) VALUES (\""+tmpWord+"\",1) ON DUPLICATE KEY UPDATE count=count+1");
+												break;
+											}
+											Integer levDist = StringUtils.getLevenshteinDistance(tmpWord, line[i].trim());
+											if(levDist < minLength){
+												minLength=levDist;
+												minWord = tmpWord;
+											}
+										}
+										if(!minWord.equals("")){
+											dbConnection.insert("INSERT INTO answer_chass_prof (answer,count) VALUES (\""+minWord+"\",1) ON DUPLICATE KEY UPDATE count=count+1");
+										}
+									}
 								}
 							}
 							if(i == 15){//13
@@ -127,6 +147,26 @@ public class Analyzer {
 									exists.next();
 									if(exists.getInt(1)>0){
 										dbConnection.insert("INSERT INTO answer_cnas_prof (answer,count) VALUES (\""+line[i].trim()+"\",1) ON DUPLICATE KEY UPDATE count=count+1");
+									}
+									else{
+										ResultSet courier = dbConnection.getResult("SELECT * FROM professor_list WHERE college=\"CNAS\"");
+										Integer minLength=1000;
+										String minWord="";
+										while(courier.next()){
+											String tmpWord = courier.getString("name");
+											if(tmpWord.contains(line[i].trim())){
+												dbConnection.insert("INSERT INTO answer_cnas_prof (answer,count) VALUES (\""+tmpWord+"\",1) ON DUPLICATE KEY UPDATE count=count+1");
+												break;
+											}
+											Integer levDist = StringUtils.getLevenshteinDistance(tmpWord, line[i].trim());
+											if(levDist < minLength){
+												minLength=levDist;
+												minWord = tmpWord;
+											}
+										}
+										if(!minWord.equals("")){
+											dbConnection.insert("INSERT INTO answer_cnas_prof (answer,count) VALUES (\""+minWord+"\",1) ON DUPLICATE KEY UPDATE count=count+1");
+										}
 									}
 								}
 							}
@@ -138,6 +178,26 @@ public class Analyzer {
 									if(exists.getInt(1)>0){
 										dbConnection.insert("INSERT INTO answer_bcoe_prof (answer,count) VALUES (\""+line[i].trim()+"\",1) ON DUPLICATE KEY UPDATE count=count+1");
 									}
+									else{
+										ResultSet courier = dbConnection.getResult("SELECT * FROM professor_list WHERE college=\"BCOE\"");
+										Integer minLength=1000;
+										String minWord="";
+										while(courier.next()){
+											String tmpWord = courier.getString("name");
+											if(tmpWord.contains(line[i].trim())){
+												dbConnection.insert("INSERT INTO answer_bcoe_prof (answer,count) VALUES (\""+tmpWord+"\",1) ON DUPLICATE KEY UPDATE count=count+1");
+												break;
+											}
+											Integer levDist = StringUtils.getLevenshteinDistance(tmpWord, line[i].trim());
+											if(levDist < minLength){
+												minLength=levDist;
+												minWord = tmpWord;
+											}
+										}
+										if(!minWord.equals("")){
+											dbConnection.insert("INSERT INTO answer_bcoe_prof (answer,count) VALUES (\""+minWord+"\",1) ON DUPLICATE KEY UPDATE count=count+1");
+										}
+									}
 								}
 							}
 							if(i == 17){//15
@@ -147,6 +207,26 @@ public class Analyzer {
 									exists.next();
 									if(exists.getInt(1)>0){
 										dbConnection.insert("INSERT INTO answer_soba_prof (answer,count) VALUES (\""+line[i].trim()+"\",1) ON DUPLICATE KEY UPDATE count=count+1");
+									}
+									else{
+										ResultSet courier = dbConnection.getResult("SELECT * FROM professor_list WHERE college=\"SOBA\"");
+										Integer minLength=1000;
+										String minWord="";
+										while(courier.next()){
+											String tmpWord = courier.getString("name");
+											if(tmpWord.contains(line[i].trim())){
+												dbConnection.insert("INSERT INTO answer_soba_prof (answer,count) VALUES (\""+tmpWord+"\",1) ON DUPLICATE KEY UPDATE count=count+1");
+												break;
+											}
+											Integer levDist = StringUtils.getLevenshteinDistance(tmpWord, line[i].trim());
+											if(levDist < minLength){
+												minLength=levDist;
+												minWord = tmpWord;
+											}
+										}
+										if(!minWord.equals("")){
+											dbConnection.insert("INSERT INTO answer_soba_prof (answer,count) VALUES (\""+minWord+"\",1) ON DUPLICATE KEY UPDATE count=count+1");
+										}
 									}
 								}
 							}
@@ -163,6 +243,7 @@ public class Analyzer {
 			}
 				//System.out.println(" ");
 			reader.close();
+			dbConnection.closeConnection();
 			
 		} catch (IOException | SQLException e) {
 			// TODO Auto-generated catch block
@@ -170,38 +251,7 @@ public class Analyzer {
 		} 		
 
 	}
-	
-	
-/*==========================================================================
-* outputMap
-* Inputs:  None  
-* Outputs: Prints the Keys of the maps followed by the contents of that entry
-* Returns: None
-* Description: Outputs map data to allow for testing and making sure the values are correct
-===========================================================================*/
-	public void outputMap(){
-		for(Map.Entry<Integer,Collection<String>> entry : answerMap.entrySet()){
-			System.out.println(entry.getKey());
-			for(String s : entry.getValue()){
-				System.out.println(s);
-			}
-		}
-	}
-	
-	
-	
-/*==========================================================================
-* getMap
-* Inputs:  None  
-* Outputs: None
-* Returns: The hashmap that contains the parsed input file
-* Description: Returns the hash map so that another class can use the data from the input file
-===========================================================================*/
-	public HashMap<Integer,Collection<String>> getMap(){
-		return answerMap;
-	}
-	
-	
+
 	
 	// how to store pair
 	// when you find a word. and its not in the other list add it to list w/ freq 1
@@ -248,36 +298,6 @@ public class Analyzer {
 			
 			answerFrequencyMap.put(answerNum, tmpFreqMap);
 		}
-		
-		
-		
-//		for(Map.Entry<Integer,Collection<String>> answerEntry : answerMap.entrySet()){
-//			HashMap<String,Float> tmpFreqMap = new HashMap<String,Float>();
-//			
-//			Float answerAmount = (float) answerEntry.getValue().size();
-//			
-//			
-//			// Gets the frequency of each answer in the collection 
-//			for(String s : answerEntry.getValue()){
-//				if(tmpFreqMap.containsKey(s)){
-//					tmpFreqMap.put(s, tmpFreqMap.get(s)+1);
-//				}
-//				else {
-//					//System.out.println("Key "+s+" not found");
-//					tmpFreqMap.put(s, (float) 1.0);
-//				}
-//			}
-//			
-//			for(Map.Entry<String,Float> percentCalcEntry : tmpFreqMap.entrySet()){
-//				percentCalcEntry.setValue(percentCalcEntry.getValue()/answerAmount); //turns the frequency into a decimal percentage
-//			}
-//			
-////			for(Map.Entry<String,Float> tmp : tmpFreqMap.entrySet()){
-////				System.out.println("Word: "+tmp.getKey()+ " Frequency: "+tmp.getValue());
-////			}
-//			
-//			answerFrequencyMap.put(answerEntry.getKey(), tmpFreqMap);
-//		}
 	}
 	
 	
@@ -311,10 +331,10 @@ public class Analyzer {
 		
 		Analyzer test = new Analyzer();
 		//System.out.println("Created Test Parser");
-		//test.importFile("e:\\Users\\Garrett\\Desktop\\Reader's_Guide_2013.csv");
+		test.importFile("e:\\Users\\Garrett\\Desktop\\Reader's_Guide_2014.csv");
 		
-		test.analyze();
-		test.outputAnalysis("e:\\Users\\Garrett\\Desktop\\trash.txt");
+		//test.analyze();
+		//test.outputAnalysis("e:\\Users\\Garrett\\Desktop\\trash.txt");
 		time.stop();
 		
 		System.out.println(time.toString());
